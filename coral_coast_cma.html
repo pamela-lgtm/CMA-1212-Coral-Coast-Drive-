@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1212 Coral Coast Drive — Rental Pricing Analysis | Verandah Properties</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1C2B3A;
+    --teal: #2E8B7A;
+    --teal-light: #e4f4f1;
+    --gold: #C9A84C;
+    --gold-light: #fdf8ec;
+    --coral: #C75D4E;
+    --sand: #F7F4EF;
+    --sand-2: #EEE9E1;
+    --text: #1C2B3A;
+    --text-2: #4a5568;
+    --text-3: #8a9ab0;
+    --border: #DDD8D0;
+    --card: #ffffff;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Jost', system-ui, sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--sand); color: var(--text); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  /* HEADER */
+  .header { background: var(--navy); padding: 3rem 2rem 2.5rem; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; right: -100px; top: -100px; width: 400px; height: 400px; border-radius: 50%; background: rgba(46,139,122,0.08); }
+  .header::after { content: ''; position: absolute; left: -40px; bottom: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(201,168,76,0.06); }
+  .header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+  .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-bottom: .6rem; }
+  .header h1 { font-family: var(--serif); font-size: 34px; font-weight: 300; color: #fff; line-height: 1.15; margin-bottom: .3rem; letter-spacing: .01em; }
+  .header-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 1.6rem; letter-spacing: .03em; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 4px 13px; font-size: 11px; color: rgba(255,255,255,0.75); letter-spacing: .03em; }
+  .pill.gold { background: rgba(201,168,76,0.15); border-color: rgba(201,168,76,0.3); color: var(--gold); }
+
+  /* SOURCE BAR */
+  .source-bar { background: var(--gold-light); border-bottom: 1px solid #e8d89a; padding: .55rem 2rem; font-size: 11px; color: #7a6010; }
+  .source-bar-inner { max-width: 900px; margin: 0 auto; }
+
+  /* MAIN */
+  .main { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+  .section { margin-bottom: 2.8rem; }
+  .section-label { font-size: 9px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--teal); margin-bottom: .9rem; padding-bottom: .4rem; border-bottom: 1px solid var(--border); }
+
+  /* RECOMMENDATION HERO */
+  .rec-hero { background: var(--navy); border-radius: 14px; padding: 2rem 2rem 1.8rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; overflow: hidden; position: relative; }
+  .rec-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(46,139,122,0.12) 0%, transparent 60%); pointer-events: none; }
+  .rec-col { padding: 1rem 1.3rem; position: relative; z-index: 1; }
+  .rec-col + .rec-col { border-left: 1px solid rgba(255,255,255,0.08); }
+  .rec-eyebrow { font-size: 9px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: .5rem; }
+  .rec-value { font-family: var(--serif); font-size: 36px; font-weight: 300; line-height: 1; margin-bottom: .3rem; }
+  .rec-value.gold { color: var(--gold); }
+  .rec-value.teal { color: #5ecfbf; }
+  .rec-value.white { color: #fff; }
+  .rec-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+  @media (max-width: 580px) { .rec-hero { grid-template-columns: 1fr; } .rec-col + .rec-col { border-left: none; border-top: 1px solid rgba(255,255,255,0.08); } }
+
+  /* CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .card-label { font-size: 10px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); margin-bottom: 5px; line-height: 1.4; }
+  .card-value { font-family: var(--serif); font-size: 26px; font-weight: 400; color: var(--text); line-height: 1.1; }
+  .card-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; line-height: 1.4; }
+  .card.good { border-left: 3px solid var(--teal); }
+  .card.good .card-value { color: var(--teal); }
+  .card.warn { border-left: 3px solid var(--gold); }
+  .card.warn .card-value { color: #8a6a10; }
+  .card.danger { border-left: 3px solid var(--coral); }
+  .card.danger .card-value { color: var(--coral); }
+  .card.neutral { border-left: 3px solid var(--border); }
+
+  /* COMP TABLE */
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--card); }
+  th { text-align: left; font-size: 9px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); padding: 9px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; background: var(--sand); }
+  td { padding: 9px 12px; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr.subject { background: #eaf7f5; }
+  tr.subject td { font-weight: 500; }
+  tr.updated { background: #fafaf8; }
+  tr.dated { background: #fdfcf8; }
+  tr.active-row { background: #fdf8f0; }
+  td.muted { color: var(--text-3); }
+  td.teal { color: var(--teal); font-weight: 500; }
+  td.gold { color: #7a6010; font-weight: 500; }
+  td.coral { color: var(--coral); font-weight: 500; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 9px; border-radius: 20px; letter-spacing: .02em; }
+  .badge.leased { background: #e4f4f1; color: #1a6e60; }
+  .badge.active { background: #fdf4e0; color: #7a5000; }
+  .badge.subject { background: var(--navy); color: #fff; }
+  .badge.updated { background: #eaf7f5; color: #1a6e60; }
+  .badge.dated { background: #f5f2eb; color: #6b5a30; }
+
+  /* CALLOUT */
+  .callout { border-radius: 10px; padding: 1rem 1.2rem; font-size: 13px; line-height: 1.7; margin-bottom: 1rem; }
+  .callout.info { background: #eaf7f5; border: 1px solid #a8ddd6; color: #1a4a44; }
+  .callout.warn { background: var(--gold-light); border: 1px solid #e0c870; color: #6b4e10; }
+  .callout.insight { background: var(--sand-2); border: 1px solid var(--border); color: var(--text-2); border-left: 3px solid var(--teal); border-radius: 0 10px 10px 0; }
+  .callout strong { font-weight: 500; }
+
+  /* CHART */
+  .chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; }
+  .chart-container { position: relative; width: 100%; height: 200px; }
+  .chart-legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 11px; color: var(--text-3); margin-bottom: .8rem; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+
+  /* PRICING BAND */
+  .pricing-band { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+  .band-track { position: relative; height: 10px; background: var(--sand-2); border-radius: 20px; margin: 1.2rem 0 .5rem; }
+  .band-fill { position: absolute; height: 100%; border-radius: 20px; background: var(--teal); opacity: .25; }
+  .band-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--card); box-shadow: 0 0 0 2px var(--teal); background: var(--teal); }
+  .band-marker.gold { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+  .band-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); margin-top: .3rem; }
+  .band-labels span { font-weight: 500; color: var(--text-2); }
+  .band-rec { display: flex; align-items: center; gap: 8px; margin-top: 1rem; font-size: 13px; color: var(--text-2); }
+  .band-rec-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+
+  /* STRATEGY */
+  .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 560px) { .strategy-grid { grid-template-columns: 1fr; } }
+  .strat-card { border-radius: 10px; border: 1px solid var(--border); padding: 1.1rem 1.2rem; background: var(--card); }
+  .strat-header { font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .6rem; }
+  .strat-header.teal { color: var(--teal); }
+  .strat-header.gold { color: #8a6a10; }
+  .strat-body { font-size: 12px; color: var(--text-2); line-height: 1.7; }
+  .strat-price { font-family: var(--serif); font-size: 22px; font-weight: 300; margin-bottom: .4rem; }
+  .strat-price.teal { color: var(--teal); }
+  .strat-price.gold { color: #8a6a10; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .footer { border-top: 1px solid var(--border); padding: 1.2rem 2rem; font-size: 11px; color: var(--text-3); text-align: center; line-height: 1.8; }
+  .footer strong { color: var(--teal); }
+  @media (max-width: 600px) { .header h1 { font-size: 26px; } .main { padding: 1.5rem 1rem 3rem; } .cards { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="eyebrow">Verandah Properties · Rental Pricing Analysis · April 8, 2026</div>
+    <h1>1212 Coral Coast Drive</h1>
+    <div class="header-sub">Orlando, FL 32824 · Island Cove · New Listing</div>
+    <div class="pills">
+      <span class="pill">3 bed / 2 bath</span>
+      <span class="pill">1,163 sq ft</span>
+      <span class="pill">Built 1994</span>
+      <span class="pill">Townhome</span>
+      <span class="pill gold">Updated &amp; move-in ready</span>
+    </div>
+  </div>
+</div>
+
+<div class="source-bar">
+  <div class="source-bar-inner">
+    <strong>Data source:</strong> Stellar MLS rental CMA as of April 8, 2026 · Comparable properties: 3/2, 1,116–1,182 sq ft, 1993–1997 build · Island Cove, Island Cove Villas, and Summerfield communities · Condition notes provided by Verandah Properties.
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- PRICING RECOMMENDATION HERO -->
+  <div class="section">
+    <div class="section-label">Recommended rental pricing</div>
+    <div class="rec-hero">
+      <div class="rec-col">
+        <div class="rec-eyebrow">Recommended list price</div>
+        <div class="rec-value gold">$2,000</div>
+        <div class="rec-desc">Best balance of market positioning, condition premium, and days-on-market risk</div>
+      </div>
+      <div class="rec-col">
+        <div class="rec-eyebrow">Defensible range</div>
+        <div class="rec-value teal">$1,950–$2,050</div>
+        <div class="rec-desc">Supported by leased comps · Condition of subject supports upper half of range</div>
+      </div>
+      <div class="rec-col">
+        <div class="rec-eyebrow">Expected days on market</div>
+        <div class="rec-value white">30–60 days</div>
+        <div class="rec-desc">Based on updated comp performance · Priced correctly, demand is present</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKET SNAPSHOT -->
+  <div class="section">
+    <div class="section-label">Market snapshot — leased comp summary</div>
+    <div class="cards">
+      <div class="card good">
+        <div class="card-label">Leased comp range</div>
+        <div class="card-value">$1,895–$2,050</div>
+        <div class="card-sub">4 leased comps · All 3/2 · 1,116–1,182 sq ft · Jan–Apr 2026</div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Leased comp average</div>
+        <div class="card-value">$1,986</div>
+        <div class="card-sub">Average leased price across all 4 comps</div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Leased comp median</div>
+        <div class="card-value">$2,000</div>
+        <div class="card-sub">SP/LP median: 100% · Market is efficient at this price point</div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Active listing (unsold)</div>
+        <div class="card-value">$1,900</div>
+        <div class="card-sub">14772 Laguna Beach Cir · 61 days · No tenant · Below leased median</div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- COMP TABLE -->
+  <div class="section">
+    <div class="section-label">Comparable properties — full detail with condition notes</div>
+
+    <div class="callout info" style="margin-bottom:1rem;">
+      <strong>Condition is the key variable in this dataset.</strong> All comps are 3/2 townhomes built 1993–1997 in the same submarket. The spread in leased prices ($1,895–$2,050) is largely explained by condition — updated homes commanded more and leased faster. The subject property at 1212 Coral Coast is updated and move-in ready, which supports pricing in the upper half of the range.
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Address</th>
+            <th>Community</th>
+            <th>Sq Ft</th>
+            <th>Yr Built</th>
+            <th>Condition</th>
+            <th>Ask</th>
+            <th>Leased At</th>
+            <th>SP/LP</th>
+            <th>DOM</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="subject">
+            <td>1212 Coral Coast Dr ★</td>
+            <td class="muted">Island Cove</td>
+            <td>1,163</td>
+            <td class="muted">1994</td>
+            <td><span class="badge updated">Updated</span></td>
+            <td class="teal">—</td>
+            <td class="teal">—</td>
+            <td class="muted">—</td>
+            <td class="muted">—</td>
+            <td><span class="badge subject">Subject</span></td>
+          </tr>
+          <tr class="updated">
+            <td>13343 Summerton Dr</td>
+            <td class="muted">Summerfield</td>
+            <td>1,138</td>
+            <td class="muted">1996</td>
+            <td><span class="badge dated">Dated/clean</span></td>
+            <td class="muted">$2,050</td>
+            <td class="teal">$2,050</td>
+            <td class="muted">100%</td>
+            <td class="teal">13</td>
+            <td><span class="badge leased">Leased</span></td>
+          </tr>
+          <tr class="updated">
+            <td>13140 Summerton Dr</td>
+            <td class="muted">Summerfield</td>
+            <td>1,138</td>
+            <td class="muted">1997</td>
+            <td><span class="badge updated">Updated</span></td>
+            <td class="muted">$2,000</td>
+            <td class="teal">$2,000</td>
+            <td class="muted">100%</td>
+            <td class="muted">61</td>
+            <td><span class="badge leased">Leased</span></td>
+          </tr>
+          <tr class="updated">
+            <td>14572 Laguna Beach Cir</td>
+            <td class="muted">Island Cove Villas</td>
+            <td>1,182</td>
+            <td class="muted">1996</td>
+            <td><span class="badge updated">Updated</span></td>
+            <td class="muted">$2,000</td>
+            <td class="teal">$2,000</td>
+            <td class="muted">100%</td>
+            <td class="muted">78</td>
+            <td><span class="badge leased">Leased</span></td>
+          </tr>
+          <tr class="dated">
+            <td>1317 Lucaya Cir</td>
+            <td class="muted">Island Cove Villas</td>
+            <td>1,116</td>
+            <td class="muted">1993</td>
+            <td><span class="badge dated">Dated/clean</span></td>
+            <td class="muted">$1,950</td>
+            <td class="coral">$1,895</td>
+            <td class="coral">97.2%</td>
+            <td class="muted">54</td>
+            <td><span class="badge leased">Leased</span></td>
+          </tr>
+          <tr class="active-row">
+            <td>14772 Laguna Beach Cir</td>
+            <td class="muted">Island Cove</td>
+            <td>1,149</td>
+            <td class="muted">1995</td>
+            <td class="muted">Unknown</td>
+            <td class="coral">$1,900</td>
+            <td class="muted">—</td>
+            <td class="muted">—</td>
+            <td class="coral">61</td>
+            <td><span class="badge active">Active</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--text-3);margin-top:.5rem;">SP/LP = Sale Price / List Price ratio. 100% = leased at full asking price. 97.2% = required a price reduction to lease.</p>
+  </div>
+
+  <hr>
+
+  <!-- CONDITION ANALYSIS -->
+  <div class="section">
+    <div class="section-label">What condition tells us about pricing</div>
+
+    <div class="strategy-grid">
+      <div class="strat-card">
+        <div class="strat-header teal">Updated homes — what they achieved</div>
+        <div class="strat-price teal">$2,000–$2,050</div>
+        <div class="strat-body">
+          The two updated/good condition comps (13140 &amp; 13343 Summerton, 14572 Laguna Beach) all leased at or above $2,000 at 100% of asking price. No negotiation required. The market recognized the condition and paid for it. Notably, 13343 Summerton — dated but clean — leased fastest of all at just 13 days and achieved the highest price at $2,050, suggesting demand in this submarket is present when a home is priced right regardless of finish level.
+        </div>
+      </div>
+      <div class="strat-card">
+        <div class="strat-header gold">Dated home — what happened</div>
+        <div class="strat-price gold">$1,895 (asked $1,950)</div>
+        <div class="strat-body">
+          1317 Lucaya Cir — dated but clean — was the only comp that did not lease at asking price. It required a reduction from $1,950 to $1,895 and took 54 days. The 97.2% SP/LP ratio is the only one below 100% in the dataset. This is the floor — and it belongs to the least updated property in the comp set. The subject at 1212 Coral Coast is updated, which clearly separates it from this outcome.
+        </div>
+      </div>
+    </div>
+
+    <div class="callout insight" style="margin-top:1rem;">
+      <strong>Key insight:</strong> The active listing at 14772 Laguna Beach Cir has been asking $1,900 for 61 days with no tenant — below every leased comp in the dataset. This suggests that pricing below $1,950 does not accelerate leasing; it simply signals condition concerns to prospective tenants. The subject property should not be priced defensively.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- PRICING BAND VISUAL -->
+  <div class="section">
+    <div class="section-label">Pricing band — where 1212 Coral Coast fits</div>
+    <div class="pricing-band">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:.3rem;">All leased comps mapped against the full range. Subject property recommendation shown in teal.</p>
+
+      <div style="position:relative;padding:0 .5rem;">
+        <div class="band-track">
+          <div class="band-fill" style="left:0%;width:100%;"></div>
+          <!-- $1,895 = 0% -->
+          <!-- $2,050 = 100% -->
+          <!-- markers: 1895=0, 1950=36, 1986=59, 2000=68, 2050=100 -->
+          <div class="band-marker" style="left:0%;" title="$1,895 — Lucaya Cir (dated)"></div>
+          <div class="band-marker" style="left:36%;" title="$1,950 — ask at Lucaya"></div>
+          <div class="band-marker gold" style="left:68%;" title="$2,000 — recommended"></div>
+          <div class="band-marker" style="left:100%;" title="$2,050 — Summerton (top)"></div>
+        </div>
+        <div class="band-labels">
+          <span>$1,895 <span style="font-weight:300;color:var(--text-3)">· dated floor</span></span>
+          <span style="position:absolute;left:68%;transform:translateX(-50%);color:var(--gold);font-weight:500;">$2,000 ★ rec.</span>
+          <span>$2,050 <span style="font-weight:300;color:var(--text-3)">· top of range</span></span>
+        </div>
+      </div>
+
+      <div style="margin-top:1.4rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+        <div style="background:var(--sand);border-radius:8px;padding:.8rem 1rem;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;">Floor (dated/clean)</div>
+          <div style="font-family:var(--serif);font-size:20px;color:var(--coral);">$1,895</div>
+          <div style="font-size:11px;color:var(--text-3);">Lucaya Cir · required reduction</div>
+        </div>
+        <div style="background:var(--sand);border-radius:8px;padding:.8rem 1rem;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;">Market median</div>
+          <div style="font-family:var(--serif);font-size:20px;color:var(--text);">$2,000</div>
+          <div style="font-size:11px;color:var(--text-3);">2 of 4 leased comps · 100% SP/LP</div>
+        </div>
+        <div style="background:#eaf7f5;border-radius:8px;padding:.8rem 1rem;border:1px solid #a8ddd6;">
+          <div style="font-size:10px;color:var(--teal);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:500;">Recommended — subject</div>
+          <div style="font-family:var(--serif);font-size:20px;color:var(--teal);">$2,000</div>
+          <div style="font-size:11px;color:#2a6e60;">Updated condition · strong positioning</div>
+        </div>
+        <div style="background:var(--sand);border-radius:8px;padding:.8rem 1rem;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;">Ceiling (if warranted)</div>
+          <div style="font-family:var(--serif);font-size:20px;color:#8a6a10;">$2,050</div>
+          <div style="font-size:11px;color:var(--text-3);">Only if condition strongly supports it</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- CHART -->
+  <div class="section">
+    <div class="section-label">Leased price vs. days on market — all comps</div>
+    <div class="chart-wrap">
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#2E8B7A;"></span>Updated / good condition</span>
+        <span><span class="legend-dot" style="background:#C9A84C;"></span>Dated / clean</span>
+        <span><span class="legend-dot" style="background:#C75D4E;"></span>Active — not leased</span>
+      </div>
+      <div class="chart-container">
+        <canvas id="compChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- STRATEGY -->
+  <div class="section">
+    <div class="section-label">Listing strategy recommendation</div>
+    <div class="callout info">
+      <strong>List at $2,000.</strong> This is the market median, supported by two leased comps at exactly this price (100% SP/LP), and aligns with the updated condition of the subject property. It positions 1212 Coral Coast above the dated-home floor ($1,895) while avoiding the risk of the upper boundary ($2,050) where there is only one data point. At $2,000, demand has proven itself — twice — in this exact submarket within the past 90 days.
+    </div>
+    <div class="callout warn">
+      <strong>Consider $2,050 only if</strong> the interior finishes are meaningfully above the Summerton Drive comparables — for example, recent kitchen remodel, updated baths, or new flooring throughout. At that level there is one supporting comp but it is a dated home that moved very quickly, suggesting strong underlying demand. Test the market at $2,000 first; if strong interest materializes in the first 10–14 days, the owner retains the option to hold firm or adjust upward on the next lease cycle.
+    </div>
+    <div class="callout insight">
+      <strong>Do not price below $1,950.</strong> The active listing at $1,900 has been sitting 61 days — longer than every leased comp in the dataset. Pricing below the leased median signals condition concerns to prospective tenants and does not accelerate leasing. The data is clear: this market rewards updated homes priced at $2,000 with fast, full-price leases.
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>Verandah Properties, LLC</strong> · Pamela Syvertson, Broker · (407) 855-0331 · VerandahProperties.com<br>
+  This is an opinion of value and comparative market analysis as of April 8, 2026. It should not be considered an appraisal.<br>
+  Data sourced from Stellar MLS (© My Florida Regional MLS DBA Stellar MLS). Condition notes provided by Verandah Properties based on direct property knowledge.
+</div>
+
+<script>
+  const ctx = document.getElementById('compChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Updated / good condition',
+          data: [
+            { x: 13, y: 2050, label: '13343 Summerton' },
+            { x: 61, y: 2000, label: '13140 Summerton' },
+            { x: 78, y: 2000, label: '14572 Laguna Beach' }
+          ],
+          backgroundColor: '#2E8B7A',
+          pointRadius: 8,
+          pointHoverRadius: 10
+        },
+        {
+          label: 'Dated / clean',
+          data: [
+            { x: 54, y: 1895, label: '1317 Lucaya Cir' }
+          ],
+          backgroundColor: '#C9A84C',
+          pointRadius: 8,
+          pointHoverRadius: 10
+        },
+        {
+          label: 'Active — not leased',
+          data: [
+            { x: 61, y: 1900, label: '14772 Laguna Beach (active)' }
+          ],
+          backgroundColor: '#C75D4E',
+          pointRadius: 8,
+          pointHoverRadius: 10,
+          pointStyle: 'triangle'
+        },
+        {
+          label: 'Subject recommendation',
+          data: [
+            { x: 0, y: 2000, label: '1212 Coral Coast (recommended)' }
+          ],
+          backgroundColor: '#C9A84C',
+          borderColor: '#C9A84C',
+          pointRadius: 12,
+          pointHoverRadius: 14,
+          pointStyle: 'star'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const d = ctx.raw;
+              return ` ${d.label} — $${d.y.toLocaleString()}${d.x > 0 ? ' · ' + d.x + ' days' : ' · recommended'}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Days on market', color: '#8a9ab0', font: { size: 11 } },
+          ticks: { color: '#aaa', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          min: -5,
+          max: 90
+        },
+        y: {
+          title: { display: true, text: 'Leased / asking price', color: '#8a9ab0', font: { size: 11 } },
+          ticks: {
+            callback: v => '$' + v.toLocaleString(),
+            color: '#aaa', font: { size: 11 }
+          },
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          min: 1850,
+          max: 2100
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
